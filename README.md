@@ -4,7 +4,7 @@
 ![GoDoc](https://godoc.org/github.com/adamliesko/retry?status.svg)
 ![Coverage Status](https://img.shields.io/coveralls/adamliesko/retry.svg)
 
-Retry is a Go package which wraps a function and retries it until it succeeds, not returning na error. Multiple retry-able
+Retry is a Go package which wraps a function and retries it until it succeeds, not returning an error. Multiple retry-able
 options are provided, based on number of attempts, sleep after failed attempt, errors to retry on or skip, post attempts
 callback etc. Usable for interaction with flake-y web services and similar unreliable sources of frustration.
 
@@ -17,9 +17,9 @@ go get -u github.com/adamliesko/retry
 
 ## Usage
 
-In the simplest and default configuration, with 10 retries it's only about creating a new Retryer and calling Do, with
-the desired function. If the failed functions failes after 10 retries a custom error of Max Attempts reached is returned.
-Befor each call of Retryer's Do() it's state is reset, which makes the Retryer reusable.
+In the simplest and default configuration, with 10 retries it is only about creating a new Retryer and calling Do, with
+the desired function. If the failed function fails after 10 retries a custom error of Max Attempts reached is returned.
+Before each call of Retryer's Do() it's state is reset, which makes the Retryer reusable.
 ```go
 func poll() error{
     return external.IsItDone() 
@@ -28,7 +28,7 @@ func poll() error{
 result := retry.New().Do(poll)
 ```
 
-The usual usage would be to use either directly function, which return an error or wrap the function call with a function,
+The usual usage would be to use either directly function, which returns an error or wrap the function call with a function,
 which sets the error according to the inner function output.
 
 ```go
@@ -51,11 +51,11 @@ func wrappedPoll() error{
 }
 ```
 
-Options on Retryer (listed below in greater detail):
+#### Options on Retryer (listed below in greater detail):
 - constant sleep delay after a failure
-- custom function sleep delay (e.g. exponential backoff)
+- custom function sleep delay (e.g. exponential back off)
 - recovery of panics
-- calling an ensure function, regardless of the Retryer's work inside, once that it finishes
+- calling ensure function, regardless of the Retryer's work inside, once that it finishes
 - calling a custom function after each failure
 - ignoring certain errors
 - retrying only on certain errors
