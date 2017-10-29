@@ -13,11 +13,11 @@ func TestDefaultNew(t *testing.T) {
 
 	r := New()
 	if r.Tries != MaxRetries {
-		t.Fatal("bad tries config, got %d want %d", r.Tries, MaxRetries)
+		t.Fatalf("bad tries config, got %d want %d", r.Tries, MaxRetries)
 	}
 
 	if r.Tries != MaxRetries {
-		t.Fatal("bad tries config, got %d want %d", r.Tries, MaxRetries)
+		t.Fatalf("bad tries config, got %d want %d", r.Tries, MaxRetries)
 	}
 
 	err := r.Do(happy)
@@ -36,7 +36,7 @@ func TestInfNumberOfTries(t *testing.T) {
 
 	r := New(Tries(0))
 	if r.Tries != 0 {
-		t.Fatal("bad tries config, got %d want %d", r.Tries, 0)
+		t.Fatalf("bad tries config, got %d want %d", r.Tries, 0)
 	}
 
 	for i := 0; i <= 1000; i++ {
@@ -269,7 +269,7 @@ func TestCombinedOptions(t *testing.T) {
 	r := New(Tries(5), Sleep(10),Ensure(toggler))
 	err := r.Do(ab.run)
 	if err != nil {
-		t.Error("got unexpected error: %v", err)
+		t.Errorf("got unexpected error: %v", err)
 	}
 	if !touched {
 		t.Error("ensure function wasn't called")

@@ -47,7 +47,8 @@ func AfterEachFail(failFn func(error)) func(*Retryer) {
 	}
 }
 
-// Sleep configures to Retryer sleep a certain duration [ms] after each failed attempt.
+// Sleep configures the Retryer to sleep and delay the next execution of a function for certain duration [ms] after each
+// failed attempt.
 func Sleep(dur int) func(*Retryer) {
 	return func(r *Retryer) {
 		r.SleepDur = time.Duration(dur) * time.Millisecond
