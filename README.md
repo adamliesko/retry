@@ -16,34 +16,122 @@ go get -u github.com/adamliesko/retry
 
 ## Usage
 
+The usual usage would be to use either directly function, which return an error or wrap the function call with a function,
+which sets the error according to the inner function output.
+
+```go
+// can be used directly
+func poll() error{
+    return external.IsItDone() 
+}
+
+// has to be wrapped
+func pollNoError bool{
+	return external.HasItSucceeded()
+}
+
+func wrappedPoll() error{
+	if pollNoError{
+		return nil
+	}
+	
+	return errors.New("pollNoError has failed")
+}
+```
+
 In the simplest and default configuration, with 10 retries it's only about creating a new Retryer and calling Do, with
-the desired function.
+the desired function. If the failed functions failes after 10 retries a custom error of Max Attempts reached is returned.
+Befor each call of Retryer's Do() it's state is reset, which makes the Retryer reusable.
 ```go
-    func() poll{
-    	return external.IsItDone() 
-    }
+func poll() error{
+    return external.IsItDone() 
+}
     
-    result := retry.New().Do(poll)
+result := retry.New().Do(poll)
 ```
 
-#### Sleeping constant duration after each failed attempt
+Options on Retryer (listed below in greater detail):
+- constant sleep delay after a failure
+- custom function sleep delay (e.g. exponential backoff)
+- recovery of panics
+- calling an ensure function, regardless of the Retryer's work inside, once that it finishes
+- calling a custom function after each failure
+- ignoring certain errors
+- retrying only on certain errors
+
+#### Sleeping constant duration of 100ms after each failed attempt
 ```go
-
+func poll() error {
+    return external.IsItDone() 
+}
+    
+err := retry.New(retry.Sleep(100))
+result := r.Do(poll)
 ```
 
 
-#### Using exponential back off (or any other custom function) after each failed attempt
+#### Using an exponential back off (or any other custom function) after each failed attempt
 ```go
+func poll() error {
+    return external.IsItDone()
+}
+        
+sleepFn := func(attempts int) {
+    sleep := time.Duration(2^attempts) * time.Millisecond
+    time.Sleep(sleep)
+}
+
+err := retry.New(retry.SleepFn(sleepFn)).Do(poll)
 ```
 
+#### Calling an ensure function, which is called after whole Retryer execution
+```go
+func poll() error {
+    return external.IsItDone()
+}
+        
+func ensure(err error){
+	fmt.Println("ensure will be called regardless of err value")
+}
 
-#### Retry allows to combine multiple options in one Retryer. The code block below will enable:
+err := retry.New(retry.Ensure(ensure)).Do(poll)
+```
+
+#### Ignoring failures with errors of listed types (whitelist)
+```go
+func poll() error {
+    return external.IsItDone()
+}
+        
+err := retry.New(Not([]errors{})).Do(poll)
+```
+
+#### Retrying only on listed error types (blacklist)
+```go
+func poll() error {
+    return external.IsItDone()
+}
+        
+err := retry.New(On([]errors{})).Do(poll)
+```
+
+#### Retry allows to combine many options in one Retryer. The code block below will enable:
 
 - recovery of panics
 - attempting to call the function up to 15 times
 - sleeping for 200 ms after each failed attempt
-- ignoring errors of certain type
+- printing the failures to the Stdout
 
 ```go
+func poll() error {
+    return external.IsItDone()
+}
+     
+failCallback := func(err error){ fmt.Println("failed with error",error) }
 
+r := retry.New(retry.Sleep(200), retry.Tries(15), retry.Recover(), retry.AfterEachFail(failCallback)
+err := r.Do(poll)
 ```
+
+## License
+See [LICENSE](LICENSE).
