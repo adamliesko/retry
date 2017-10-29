@@ -32,12 +32,10 @@ func Recover() func( *Retryer){
 	}
 }
 
-// Tries configures to Retryer to keep calling the function until it succeeds tries-times.
+// Tries configures to Retryer to keep calling the function until it succeeds tries-times. If 0 is supplied, Retryer
+// will call the function until it succeeds, regardless of number of tries.
 func Tries(tries int) func(r *Retryer) {
 	return func(r *Retryer) {
-		if tries == 0 {
-			tries = MaxRetries
-		}
 		r.Tries = tries
 	}
 }
@@ -45,7 +43,7 @@ func Tries(tries int) func(r *Retryer) {
 // AfterEachFail configures the Retryer to call failFn function after each of the failed attempts.
 func AfterEachFail(failFn func(error)) func(*Retryer) {
 	return func(r *Retryer) {
-		//r.AfterEachFailure = failFn()
+		r.AfterEachFailFn = failFn
 	}
 }
 

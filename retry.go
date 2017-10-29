@@ -1,7 +1,6 @@
 package retry
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"runtime/debug"
@@ -11,16 +10,17 @@ import (
 // MaxRetries is the maximum number of retries.
 const MaxRetries = 10
 
+// Retryer is configurable runner, which repeats function calls until it succeeds.
 type Retryer struct {
-	Tries        int
-	On           []error       // On is the slice of errors, on which Retryer will retry a function
-	Not          []error       // Not is the slice of errors which Retryer won't consider as needed to retry
-	SleepDur     time.Duration // Sleep duration in ms
-	Recover bool // If enabled, panics will be recovered.
+	Tries    int
+	On       []error       // On is the slice of errors, on which Retryer will retry a function
+	Not      []error       // Not is the slice of errors which Retryer won't consider as needed to retry
+	SleepDur time.Duration // Sleep duration in ms
+	Recover  bool          // If enabled, panics will be recovered.
 
-	SleepFn 	func(int) // Custom sleep function with access to the current # of attempts
-	EnsureFn     func(error) // DeferredFn is called after repeated function finishes, regardless of outcome
-	ErrorFn      func(error) // DeferredFn is called after repeated function finishes, regardless of outcome
+	SleepFn         func(int)   // Custom sleep function with access to the current # of attempts
+	EnsureFn        func(error) // DeferredFn is called after repeated function finishes, regardless of outcome
+	AfterEachFailFn func(error) // Callback called after each of the failures (for example some logging)
 
 	attempts int
 }
@@ -37,7 +37,7 @@ func New(opts ...func(*Retryer)) *Retryer {
 	return r
 }
 
-// Resets resets the state of the attempts to 0
+// Reset resets the state of the Retryer to the default starting one, resetting the number of attempts to 0.
 func (r *Retryer) Reset() {
 	r.attempts = 0
 }
@@ -45,37 +45,39 @@ func (r *Retryer) Reset() {
 // Do calls the passed in function until it succeeds. The behaviour of the retry mechanism heavily relies on the config
 // of the Retryer.
 func (r *Retryer) Do(fn func() error) (err error) {
+	// reset the state to starting one, 0 attempts
 	r.Reset()
 
 	// define the deferred functions
-	if r.Recover{
-		defer func(){
+	if r.Recover {
+		defer func() {
 			if r := recover(); r != nil {
-				err = errors.New(fmt.Sprintf("retryer has recovered panic: %v %s", r, debug.Stack()))
+				err = fmt.Errorf("retryer has recovered panic: %v %s", r, debug.Stack())
 			}
-			}()
+		}()
 	}
 	if r.EnsureFn != nil {
 		defer r.EnsureFn(err)
 	}
-	if r.ErrorFn != nil {
-		defer func() {
-			if err != nil {
-				r.ErrorFn(err)
-			}
-		}()
-	}
 
 	// retry the function
-	for r.attempts = 0; r.attempts < r.Tries; r.attempts++ {
+	for {
+		r.attempts++
+		if r.attempts > r.Tries {
+			break
+		}
+
 		err = fn()
 		if r.succeeded(err) {
 			return
 		}
+		if r.AfterEachFailFn != nil {
+			r.AfterEachFailFn(err)
+		}
 		r.trySleep()
 	}
 
-	return fmt.Errorf("max number of retries reached: %d, last error %v", r.attempts,err)
+	return fmt.Errorf("max number of retries reached: %d, last error %v", r.attempts, err)
 }
 
 func (r *Retryer) succeeded(err error) bool {
