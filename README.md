@@ -2,7 +2,7 @@
 
 ![Lego Batman gif retry](https://media.giphy.com/media/JJhiRdcYfcokU/giphy.gif)
 
-Retry is a Go package which wraps a function calls it repeatedly, until it succeeds - not returning an error. 
+Retry is a Go package which wraps a function and invokes it repeatedly, until it succeeds - not returning an error. 
 Multiple retry-able options are provided, based on number of attempts, delay options between attempts, errors to retry 
 on or ignore, post attempts callback etc. Usable for interaction with flake-y web services and similar unreliable sources
 of frustration.
