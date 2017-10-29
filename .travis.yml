@@ -2,11 +2,9 @@ language: go
 go:
   - 1.9
   - tip
-
 env:
   global:
     - PATH=$HOME/gopath/bin:$PATH
-
 install:
   - go get github.com/mattn/goveralls
 

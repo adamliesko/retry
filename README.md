@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/adamliesko/retry?status.svg)](https://godoc.org/github.com/adamliesko/retry)
 [![Coverage Status](https://img.shields.io/coveralls/adamliesko/retry.svg)](https://coveralls.io/r/adamliesko/retry?branch=master)
 
-Retry is a Go packag which wraps a function and retries it until it succeeds, not returning na error. Multiple retry-able
+Retry is a Go package which wraps a function and retries it until it succeeds, not returning na error. Multiple retry-able
 options are provided, based on number of attempts, sleep after failed attempt, errors to retry on or skip, post attempts
 callback etc. Usable for interaction with flake-y web services and similar unreliable sources of frustration.
 
@@ -16,14 +16,24 @@ go get -u github.com/adamliesko/retry
 
 ## Usage
 
-#### Sleeping constant duration after each failed attempt
+In the simplest and default configuration, with 10 retries it's only about creating a new Retryer and calling Do, with
+the desired function.
+```go
+    func() poll{
+    	return external.IsItDone() 
+    }
+    
+    result := retry.New().Do(poll)
 ```
+
+#### Sleeping constant duration after each failed attempt
+```go
 
 ```
 
 
 #### Using exponential back off (or any other custom function) after each failed attempt
-```
+```go
 ```
 
 
@@ -34,6 +44,6 @@ go get -u github.com/adamliesko/retry
 - sleeping for 200 ms after each failed attempt
 - ignoring errors of certain type
 
-```
+```go
 
 ```
