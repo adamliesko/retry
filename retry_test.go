@@ -266,7 +266,7 @@ func TestCombinedOptions(t *testing.T) {
 	touched := false
 	toggler := func(error) { touched = true }
 
-	r := New(Tries(5), Sleep(10),Ensure(toggler))
+	r := New(Tries(5), Sleep(10), Ensure(toggler))
 	err := r.Do(ab.run)
 	if err != nil {
 		t.Errorf("got unexpected error: %v", err)
@@ -275,7 +275,6 @@ func TestCombinedOptions(t *testing.T) {
 		t.Error("ensure function wasn't called")
 	}
 }
-
 
 func TestSleepFnPriorityOverSleep(t *testing.T) {
 	t.Parallel()
@@ -287,7 +286,7 @@ func TestSleepFnPriorityOverSleep(t *testing.T) {
 	}
 
 	// the Sleep(1000) won't be used, if yes, it will be caught by the timers below
-	r := New(SleepFn(sleepFn),Sleep(1000), Tries(3))
+	r := New(SleepFn(sleepFn), Sleep(1000), Tries(3))
 	ch := make(chan error)
 	start := time.Now()
 	go func() {

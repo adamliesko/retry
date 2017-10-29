@@ -11,7 +11,7 @@ func On(errors []error) func(r *Retryer) {
 
 // Not configures the Retryer to ignore all of the passed in errors and in case of them appearing doesn't retry
 // function anymore.
-func Not(errors []error) func( *Retryer) {
+func Not(errors []error) func(*Retryer) {
 	return func(r *Retryer) {
 		r.Not = errors
 	}
@@ -19,14 +19,14 @@ func Not(errors []error) func( *Retryer) {
 
 // Ensure sets a deferred function to be called, regardless of Retryer succeeding in running the function with or without
 // an error.
-func Ensure(ensureFn func(error)) func( *Retryer) {
+func Ensure(ensureFn func(error)) func(*Retryer) {
 	return func(r *Retryer) {
 		r.EnsureFn = ensureFn
 	}
 }
 
 // Recover configures the Retryer to recover panics, returning an error containing the panic and it's stacktrace.
-func Recover() func( *Retryer){
+func Recover() func(*Retryer) {
 	return func(r *Retryer) {
 		r.Recover = true
 	}
@@ -54,7 +54,6 @@ func Sleep(dur int) func(*Retryer) {
 		r.SleepDur = time.Duration(dur) * time.Millisecond
 	}
 }
-
 
 // SleepFn configures the Retryer to call a custom, caller supplied function after each failed attempt. SleepFn takes
 // precedence over a set sleep duration.
