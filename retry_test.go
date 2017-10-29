@@ -30,10 +30,6 @@ func TestDefaultNew(t *testing.T) {
 		t.Fatalf("bad tries config, got %d want %d", r.Tries, MaxRetries)
 	}
 
-	if r.Tries != MaxRetries {
-		t.Fatalf("bad tries config, got %d want %d", r.Tries, MaxRetries)
-	}
-
 	err := r.Do(happy)
 	if err != nil {
 		t.Errorf("should have succeeded without an error, got %v. Retryer state %#v", err, r)
@@ -138,6 +134,8 @@ func TestSleepFn(t *testing.T) {
 }
 
 func TestPanicRecoveryEnabled(t *testing.T) {
+	t.Parallel()
+
 	defer func() {
 		if r := recover(); r != nil {
 			t.Errorf("retryer with default panic recovery option - Recover - shouldn't have panicked: %v", r)
