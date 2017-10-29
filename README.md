@@ -65,9 +65,7 @@ func wrappedPoll() error{
 
 ### Sleeping constant duration of 100ms after each failed attempt
 ```go
-func poll() error {
-    return external.IsItDone() 
-}
+func poll() error { return external.IsItDone() }
     
 err := retry.New(retry.Sleep(100))
 result := r.Do(poll)
@@ -76,9 +74,7 @@ result := r.Do(poll)
 
 ### Using an exponential back off (or any other custom function) after each failed attempt
 ```go
-func poll() error {
-    return external.IsItDone()
-}
+func poll() error { return external.IsItDone() }
         
 sleepFn := func(attempts int) {
     sleep := time.Duration(2^attempts) * time.Millisecond
@@ -90,9 +86,7 @@ err := retry.New(retry.SleepFn(sleepFn)).Do(poll)
 
 ### Calling an ensure function, which is called after whole Retryer execution
 ```go
-func poll() error {
-    return external.IsItDone()
-}
+func poll() error { return external.IsItDone() }
         
 func ensure(err error){
 	fmt.Println("ensure will be called regardless of err value")
@@ -103,32 +97,22 @@ err := retry.New(retry.Ensure(ensure)).Do(poll)
 
 ### Ignoring failures with errors of listed types (whitelist) and considering them as success
 ```go
-type MyError struct {
-}
+type MyError struct {}
 
-func (e MyError) Error() string {
-	return "this is my custom error"
-}
-
-func poll() error {
-    return external.IsItDone()
-}
+func (e MyError) Error() string { return "this is my custom error" }
+	
+func poll() error { return external.IsItDone() }
         
 err := retry.New(Not([]errors{MyError{}})).Do(poll)
 ```
 
 ### Retrying only on listed error types (blacklist), other errors will be considered as success
 ```go
-type MyError struct {
-}
+type MyError struct {}
 
-func (e MyError) Error() string {
-	return "this is my custom error"
-}
+func (e MyError) Error() string { return "this is my custom error" }
 
-func poll() error {
-    return external.IsItDone()
-}
+func poll() error { return external.IsItDone() }
         
 err := retry.New(On([]errors{MyError{}})).Do(poll)
 ```
@@ -141,9 +125,7 @@ err := retry.New(On([]errors{MyError{}})).Do(poll)
 - printing the failures to the Stdout
 
 ```go
-func poll() error {
-    return external.IsItDone()
-}
+func poll() error { return external.IsItDone() }
      
 failCallback := func(err error){ fmt.Println("failed with error",error) }
 
