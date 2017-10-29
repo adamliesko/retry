@@ -172,13 +172,13 @@ func TestErrorFnOn(t *testing.T) {
 	t.Parallel()
 
 	// errorTypeC is not amongst the ones to retry on, on 5th attempt we expect to succeed
-	fn := func() error { return &errorTypeC{S: "error c triggered"} }
+	fn := func() error { return errorTypeC{S: "error c triggered"} }
 	ab := attemptsBased{
 		succeedOnNth: 5,
 		fn:           fn,
 	}
 
-	r := New(Tries(6), On([]error{&errorTypeA{}, &errorTypeB{}}))
+	r := New(Tries(6), On([]error{errorTypeA{}, errorTypeB{}}))
 	err := r.Do(ab.run)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
@@ -189,14 +189,14 @@ func TestErrorFnOn(t *testing.T) {
 	}
 
 	// errorTypeC is not amongst the ones to retry on, we try only once
-	fn = func() error { return &errorTypeC{S: "error c triggered"} }
-	err = New(Tries(1), On([]error{&errorTypeA{}, &errorTypeC{}})).Do(fn)
+	fn = func() error { return errorTypeC{S: "error c triggered"} }
+	err = New(Tries(1), On([]error{errorTypeA{}, errorTypeC{}})).Do(fn)
 	if err == nil {
 		t.Errorf("expected errorType error")
 	}
 
 	// errorTypeC is not amongst the ones to retry on, as we supply empty slice of errors, we try only once
-	fn = func() error { return &errorTypeC{S: "error c triggered"} }
+	fn = func() error { return errorTypeC{S: "error c triggered"} }
 	err = New(Tries(1), On([]error{})).Do(fn)
 	if err == nil {
 		t.Errorf("expected errorType error")
@@ -208,9 +208,9 @@ func TestErrorFnNot(t *testing.T) {
 
 	// errorTypeC is amongst the ones to ignore in the not slice on, we expect a success after 1st run
 	errMsg := "error c triggered"
-	fn := func() error { return &errorTypeC{S: errMsg} }
+	fn := func() error { return errorTypeC{S: errMsg} }
 
-	r := New(Tries(3), Not([]error{&errorTypeA{}, &errorTypeC{}}))
+	r := New(Tries(3), Not([]error{errorTypeA{}, errorTypeC{}}))
 	err := r.Do(fn)
 	if err == nil {
 		t.Errorf("unexpected error: %v", err)
@@ -220,8 +220,8 @@ func TestErrorFnNot(t *testing.T) {
 	}
 
 	// errorTypeC is not amongst the ones to retry on, we try only once
-	fn = func() error { return &errorTypeC{S: "error c triggered"} }
-	err = New(Tries(1), Not([]error{&errorTypeA{}, &errorTypeB{}})).Do(fn)
+	fn = func() error { return errorTypeC{S: "error c triggered"} }
+	err = New(Tries(1), Not([]error{errorTypeA{}, errorTypeB{}})).Do(fn)
 	if err == nil {
 		t.Errorf("expected errorType error")
 	}
@@ -312,7 +312,7 @@ type errorTypeA struct {
 	s string
 }
 
-func (e *errorTypeA) Error() string {
+func (e errorTypeA) Error() string {
 	return e.s
 }
 
@@ -320,7 +320,7 @@ type errorTypeB struct {
 	s string
 }
 
-func (e *errorTypeB) Error() string {
+func (e errorTypeB) Error() string {
 	return e.s
 }
 
@@ -328,7 +328,7 @@ type errorTypeC struct {
 	S string
 }
 
-func (e *errorTypeC) Error() string {
+func (e errorTypeC) Error() string {
 	return e.S
 }
 
