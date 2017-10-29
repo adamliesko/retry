@@ -25,6 +25,12 @@ type Retryer struct {
 	attempts int
 }
 
+// Do is wrapper around Retryer, which doesn't expose the Retryer itself, only calls the function until it succeeds.
+func Do(fn func() error, opts ...func(*Retryer)) error{
+	r := New(opts...)
+	return r.Do(fn)
+}
+
 // New creates a Retryer with applied options.
 func New(opts ...func(*Retryer)) *Retryer {
 	r := &Retryer{Tries: MaxRetries}
@@ -78,6 +84,11 @@ func (r *Retryer) Do(fn func() error) (err error) {
 	}
 
 	return fmt.Errorf("max number of retries reached: %d, last error %v", r.attempts, err)
+}
+
+// Attempts return the number of times Retryer has invoked a function call.
+func (r *Retryer) Attempts() int{
+	return r.attempts
 }
 
 func (r *Retryer) succeeded(err error) bool {

@@ -18,9 +18,9 @@ go get -u github.com/adamliesko/retry
 
 ## Usage
 
-In the simplest and default configuration, with 10 retries it is only about creating a new Retryer and calling Do, with
+In the simplest and default configuration, with 10 retries it is only about calling package level function `Do()`, with
 the desired function. If the failed function fails after 10 retries a custom error of Max Attempts reached is returned.
-Before each call of Retryer's Do() it's state is reset, which makes the Retryer reusable.
+An alternative is using a reusable Retryer value, which will be reset after each `Do()` method call.
 ```go
 
 import "external"
@@ -29,7 +29,11 @@ func poll() error{
     return external.IsItDone() 
 }
     
-result := retry.New().Do(poll)
+// equivalent calls
+err1 := retry.Do(poll)
+err2 := retry.New().Do(poll)
+r := retry.New().Do()
+err3 := r.Do(poll)
 ```
 
 The usual usage would be to use either directly function, which returns an error or wrap the function call with a function,
@@ -52,6 +56,8 @@ func wrappedPoll() error{
 	}
 	return nil
 }
+
+result := retry.Do(wrappedPoll)
 ```
 
 ### Options on Retryer (listed below in greater detail):

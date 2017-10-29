@@ -8,6 +8,20 @@ import (
 	"time"
 )
 
+func TestDo(t *testing.T) {
+	t.Parallel()
+
+	err := Do(happy)
+	if err != nil {
+		t.Errorf("should have succeeded without an error, got %v. Retryer state %#v", err)
+	}
+
+	err = Do(sad, Tries(5))
+	if err == nil {
+		t.Errorf("should have failed with an error")
+	}
+}
+
 func TestDefaultNew(t *testing.T) {
 	t.Parallel()
 
@@ -204,7 +218,7 @@ func TestErrorFnNot(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if r.attempts != 1 {
+	if r.Attempts() != 1 {
 		t.Errorf("incorrect attempts count, got %d want 1", r.attempts)
 	}
 
