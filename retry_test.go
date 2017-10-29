@@ -171,25 +171,14 @@ func TestEnsureFn(t *testing.T) {
 func TestErrorFnOn(t *testing.T) {
 	t.Parallel()
 
-	// errorTypeC is not amongst the ones to retry on, on 5th attempt we expect to succeed
-	fn := func() error { return errorTypeC{S: "error c triggered"} }
-	ab := attemptsBased{
-		succeedOnNth: 5,
-		fn:           fn,
-	}
-
-	r := New(Tries(6), On([]error{errorTypeA{}, errorTypeB{}}))
-	err := r.Do(ab.run)
+	r := New(On([]error{errorTypeA{}, errorTypeB{}}))
+	err := r.Do(sad)
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if r.attempts != 6 {
-		t.Errorf("incorrect attempts count, got %d want 5", r.attempts)
-
-	}
 
 	// errorTypeC is not amongst the ones to retry on, we try only once
-	fn = func() error { return errorTypeC{S: "error c triggered"} }
+	fn := func() error { return errorTypeC{S: "error c triggered"} }
 	err = New(Tries(1), On([]error{errorTypeA{}, errorTypeC{}})).Do(fn)
 	if err == nil {
 		t.Errorf("expected errorType error")
@@ -206,13 +195,13 @@ func TestErrorFnOn(t *testing.T) {
 func TestErrorFnNot(t *testing.T) {
 	t.Parallel()
 
-	// errorTypeC is amongst the ones to ignore in the not slice on, we expect a success after 1st run
+	// errorTypeC is amongst the ones to ignore in the not slice, we expect a success after 1st run
 	errMsg := "error c triggered"
 	fn := func() error { return errorTypeC{S: errMsg} }
 
 	r := New(Tries(3), Not([]error{errorTypeA{}, errorTypeC{}}))
 	err := r.Do(fn)
-	if err == nil {
+	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if r.attempts != 1 {
@@ -226,7 +215,7 @@ func TestErrorFnNot(t *testing.T) {
 		t.Errorf("expected errorType error")
 	}
 	if !strings.Contains(err.Error(), errMsg) {
-		t.Errorf("unexpected error returned, got: type:%v msg:'%v',  want to contain: type:%v msg:'%v'", reflect.TypeOf(err), err.Error(), "errorTypeC", errMsg)
+		t.Errorf("unexpected error returned, got: type:%v msg:'%v',  want it to contain: type:%v msg:'%v'", reflect.TypeOf(err), err.Error(), "errorTypeC", errMsg)
 	}
 }
 

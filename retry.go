@@ -69,7 +69,7 @@ func (r *Retryer) Do(fn func() error) (err error) {
 
 		err = fn()
 		if r.succeeded(err) {
-			return
+			return nil
 		}
 		if r.AfterEachFailFn != nil {
 			r.AfterEachFailFn(err)
@@ -90,6 +90,10 @@ func (r *Retryer) succeeded(err error) bool {
 		if reflect.TypeOf(err) == reflect.TypeOf(e) {
 			return false
 		}
+	}
+
+	if len(r.On) > 0 {
+		return true
 	}
 
 	return err == nil
