@@ -68,10 +68,10 @@ func (r *Retryer) Do(fn func() error) (err error) {
 
 	// retry the function
 	for {
-		r.attempts++
-		if r.attempts > r.Tries {
+		if r.attempts >= r.Tries {
 			break
 		}
+		r.attempts++
 
 		err = fn()
 		if r.succeeded(err) {

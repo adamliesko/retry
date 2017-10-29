@@ -239,7 +239,7 @@ func TestAfterEachFail(t *testing.T) {
 
 	bodyFn := func() error { return errors.New("generic error") }
 	ab := attemptsBased{
-		succeedOnNth: 5,
+		succeedOnNth: 6,
 		fn:           bodyFn,
 	}
 
@@ -354,7 +354,7 @@ type attemptsBased struct {
 }
 
 func (ab *attemptsBased) run() error {
-	if ab.attempts == ab.succeedOnNth {
+	if ab.attempts == ab.succeedOnNth-1 {
 		return nil
 	}
 
