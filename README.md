@@ -1,14 +1,11 @@
-# retry
-![Build Status](https://secure.travis-ci.org/adamliesko/retry.svg)
-![Go Report Card](https://goreportcard.com/badge/github.com/adamliesko/retry)
-![GoDoc](https://godoc.org/github.com/adamliesko/retry?status.svg)
-![Coverage Status](https://img.shields.io/coveralls/adamliesko/retry.svg)
+# Retry [![Build Status](https://secure.travis-ci.org/adamliesko/retry.svg)](http://travis-ci.org/adamliesko/retry) [![Go Report Card](https://goreportcard.com/badge/github.com/adamliesko/retry)](https://goreportcard.com/report/github.com/adamliesko/retry) [![GoDoc](https://godoc.org/github.com/adamliesko/retry?status.svg)](https://godoc.org/github.com/adamliesko/retry) [![Coverage Status](https://img.shields.io/coveralls/adamliesko/retry.svg)](https://coveralls.io/r/adamliesko/retry?branch=master)
 
 ![Lego Batman gif retry](https://media.giphy.com/media/JJhiRdcYfcokU/giphy.gif)
 
-Retry is a Go package which wraps a function and retries it until it succeeds, not returning an error. Multiple retry-able
-options are provided, based on number of attempts, sleep after failed attempt, errors to retry on or skip, post attempts
-callback etc. Usable for interaction with flake-y web services and similar unreliable sources of frustration.
+Retry is a Go package which wraps a function calls it repeatedly, until it succeeds - not returning an error. 
+Multiple retry-able options are provided, based on number of attempts, delay options between attempts, errors to retry 
+on or ignore, post attempts callback etc. Usable for interaction with flake-y web services and similar unreliable sources
+of frustration.
 
 ## Installation
 
@@ -18,9 +15,10 @@ go get -u github.com/adamliesko/retry
 
 ## Usage
 
-In the simplest and default configuration, with 10 retries it is only about calling package level function `Do()`, with
-the desired function. If the failed function fails after 10 retries a custom error of Max Attempts reached is returned.
-An alternative is using a reusable Retryer value, which will be reset after each `Do()` method call.
+In the simplest and default configuration only about calling package level function `Do()`, with the desired function. 
+If the failed function fails after 10 retries a custom error of Max Attempts reached is returned. An alternative is 
+using a reusable Retryer value struct (=instance in OOP), which will be reset after each `Do()` method call.
+
 ```go
 
 import "external"
@@ -32,7 +30,7 @@ func poll() error{
 // equivalent calls
 err1 := retry.Do(poll)
 err2 := retry.New().Do(poll)
-r := retry.New().Do()
+r := retry.New()
 err3 := r.Do(poll)
 ```
 
@@ -69,14 +67,13 @@ result := retry.Do(wrappedPoll)
 - ignoring certain errors
 - retrying only on certain errors
 
-### Sleeping constant duration of 100ms after each failed attempt
+### Constant delay of of 100ms between failing attempts
 ```go
 func poll() error { return external.IsItDone() }
     
 err := retry.New(retry.Sleep(100))
 result := r.Do(poll)
 ```
-
 
 ### Using an exponential back off (or any other custom function) after each failed attempt
 ```go
@@ -98,7 +95,7 @@ func ensure(err error){
 	fmt.Println("ensure will be called regardless of err value")
 }
 
-err := retry.New(retry.Ensure(ensure)).Do(poll)
+err := retry.Do(poll, retry.Ensure(ensure))
 ```
 
 ### Ignoring failures with errors of listed types (whitelist) and considering them as success
@@ -133,7 +130,7 @@ err := retry.New(On([]errors{MyError{}})).Do(poll)
 ```go
 func poll() error { return external.IsItDone() }
      
-failCallback := func(err error){ fmt.Println("failed with error",error) }
+failCallback := func(err error){ fmt.Println("failed with error", error) }
 
 r := retry.New(retry.Sleep(200), retry.Tries(15), retry.Recover(), retry.AfterEachFail(failCallback)
 err := r.Do(poll)

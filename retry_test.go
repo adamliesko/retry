@@ -13,7 +13,7 @@ func TestDo(t *testing.T) {
 
 	err := Do(happy)
 	if err != nil {
-		t.Errorf("should have succeeded without an error, got %v. Retryer state %#v", err)
+		t.Errorf("should have succeeded without an error, got %v", err)
 	}
 
 	err = Do(sad, Tries(5))
