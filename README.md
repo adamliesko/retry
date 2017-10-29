@@ -54,7 +54,7 @@ func wrappedPoll() error{
 }
 ```
 
-#### Options on Retryer (listed below in greater detail):
+### Options on Retryer (listed below in greater detail):
 - constant sleep delay after a failure
 - custom function sleep delay (e.g. exponential back off)
 - recovery of panics
@@ -63,7 +63,7 @@ func wrappedPoll() error{
 - ignoring certain errors
 - retrying only on certain errors
 
-#### Sleeping constant duration of 100ms after each failed attempt
+### Sleeping constant duration of 100ms after each failed attempt
 ```go
 func poll() error {
     return external.IsItDone() 
@@ -74,7 +74,7 @@ result := r.Do(poll)
 ```
 
 
-#### Using an exponential back off (or any other custom function) after each failed attempt
+### Using an exponential back off (or any other custom function) after each failed attempt
 ```go
 func poll() error {
     return external.IsItDone()
@@ -88,7 +88,7 @@ sleepFn := func(attempts int) {
 err := retry.New(retry.SleepFn(sleepFn)).Do(poll)
 ```
 
-#### Calling an ensure function, which is called after whole Retryer execution
+### Calling an ensure function, which is called after whole Retryer execution
 ```go
 func poll() error {
     return external.IsItDone()
@@ -101,7 +101,7 @@ func ensure(err error){
 err := retry.New(retry.Ensure(ensure)).Do(poll)
 ```
 
-#### Ignoring failures with errors of listed types (whitelist) and considering them as success
+### Ignoring failures with errors of listed types (whitelist) and considering them as success
 ```go
 type MyError struct {
 }
@@ -117,7 +117,7 @@ func poll() error {
 err := retry.New(Not([]errors{MyError{}})).Do(poll)
 ```
 
-#### Retrying only on listed error types (blacklist), other errors will be considered as success
+### Retrying only on listed error types (blacklist), other errors will be considered as success
 ```go
 type MyError struct {
 }
@@ -133,7 +133,7 @@ func poll() error {
 err := retry.New(On([]errors{MyError{}})).Do(poll)
 ```
 
-#### Retry allows to combine many options in one Retryer. The code block below will enable:
+### Retry allows to combine many options in one Retryer. The code block below will enable:
 
 - recovery of panics
 - attempting to call the function up to 15 times
