@@ -4,11 +4,12 @@
 ![GoDoc](https://godoc.org/github.com/adamliesko/retry?status.svg)
 ![Coverage Status](https://img.shields.io/coveralls/adamliesko/retry.svg)
 
+![Lego Batman gif retry](https://media.giphy.com/media/JJhiRdcYfcokU/giphy.gif)
+
 Retry is a Go package which wraps a function and retries it until it succeeds, not returning an error. Multiple retry-able
 options are provided, based on number of attempts, sleep after failed attempt, errors to retry on or skip, post attempts
 callback etc. Usable for interaction with flake-y web services and similar unreliable sources of frustration.
 
-![Lego Batman gif retry](https://media.giphy.com/media/JJhiRdcYfcokU/giphy.gif)
 ## Installation
 
 ```
@@ -21,6 +22,9 @@ In the simplest and default configuration, with 10 retries it is only about crea
 the desired function. If the failed function fails after 10 retries a custom error of Max Attempts reached is returned.
 Before each call of Retryer's Do() it's state is reset, which makes the Retryer reusable.
 ```go
+
+import "external"
+
 func poll() error{
     return external.IsItDone() 
 }
@@ -43,11 +47,10 @@ func pollNoError bool{
 }
 
 func wrappedPoll() error{
-	if pollNoError{
-		return nil
+	if !pollNoError(){
+	    return errors.New("pollNoError has failed")
 	}
-	
-	return errors.New("pollNoError has failed")
+	return nil
 }
 ```
 
