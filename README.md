@@ -45,14 +45,14 @@ func poll() error{
 
 // has to be wrapped
 func pollNoError bool{
-	return external.HasItSucceeded()
+    return external.HasItSucceeded()
 }
 
 func wrappedPoll() error{
-	if !pollNoError(){
-	    return errors.New("pollNoError has failed")
-	}
-	return nil
+    if !pollNoError(){
+        return errors.New("pollNoError has failed")
+    }
+    return nil
 }
 
 result := retry.Do(wrappedPoll)
@@ -92,7 +92,7 @@ err := retry.New(retry.SleepFn(sleepFn)).Do(poll)
 func poll() error { return external.IsItDone() }
         
 func ensure(err error){
-	fmt.Println("ensure will be called regardless of err value")
+    fmt.Println("ensure will be called regardless of err value")
 }
 
 err := retry.Do(poll, retry.Ensure(ensure))
